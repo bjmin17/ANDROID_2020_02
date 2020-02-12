@@ -3,6 +3,7 @@ package com.biz.memo;
 import android.os.Bundle;
 
 import com.biz.memo.adapter.MemoViewAdapter;
+import com.biz.memo.adapter.MemoViewModel;
 import com.biz.memo.domain.MemoVO;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -10,6 +11,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +34,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextInputEditText m_input_memo = null;
     RecyclerView memo_list_view = null;
     RecyclerView.Adapter view_adapter = null;
+
+    /*
+    DB 연동을 위한 변수들 선언
+     */
+    MemoViewModel memoViewModel;
+
+    ViewModelProvider.Factory viewModelFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +66,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            memoList.add(memoVO);
 //        }
         memo_list_view = findViewById(R.id.memo_list_view);
+
+        // DB 연동을 위한 준비
+
+        // 2.2.0
+        // memoViewModel = new ViewModelProvider(this).get()
+        memoViewModel = new ViewModelProvider(
+                getViewModelStore(),
+                viewModelFactory
+        ).get(MemoViewModel.class);
+        memoList = memoViewModel.selectAll();
+
         view_adapter = new MemoViewAdapter(MainActivity.this,memoList);
 
         memo_list_view.setAdapter(view_adapter);
@@ -68,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DividerItemDecoration itemDecoration = new DividerItemDecoration(memo_list_view.getContext(),
                 LinearLayoutManager.VERTICAL);
 
-        itemDecoration.setDrawable(this.getResources().getDrawable(R.drawable.decoration_line,getApplication().getTheme()));
+//        itemDecoration.setDrawable(this.getResources().getDrawable(R.drawable.decoration_line,getApplication().getTheme()));
 
         memo_list_view.addItemDecoration(itemDecoration);
 
