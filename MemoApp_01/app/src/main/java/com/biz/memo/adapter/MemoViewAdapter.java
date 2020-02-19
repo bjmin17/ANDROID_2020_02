@@ -18,6 +18,7 @@ public class MemoViewAdapter extends RecyclerView.Adapter {
 
     private Context context = null;
     private List<MemoVO> memoList = null;
+    private LayoutInflater layoutInflater;
 
     /*
     MainActivity에서 MemoViewAdapter를 만들 때, Context와 memoList를 주입할 생성자
@@ -27,6 +28,21 @@ public class MemoViewAdapter extends RecyclerView.Adapter {
         this.memoList = memoList;
     }
 
+    public MemoViewAdapter(Context context) {
+        this.context = context;
+        this.memoList = memoList;
+    }
+
+    public void setMemoList(List<MemoVO> memoList) {
+        // 외부에서 list를 주입받고
+        // recyclerview에 세팅
+        this.memoList = memoList;
+
+        // recyclerview에게 알람
+        notifyDataSetChanged();
+
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -34,7 +50,9 @@ public class MemoViewAdapter extends RecyclerView.Adapter {
         /*
         memo_item.xml파일을 가져와서 view객체로 생성(확장)하기
          */
-        View view = LayoutInflater.from(context).inflate(R.layout.memo_item,parent,false);
+//        View view = LayoutInflater.from(context).inflate(R.layout.memo_item,parent,false);
+
+        View view = layoutInflater.inflate(R.layout.memo_item, parent, false);
 
         MemoHolder holder = new MemoHolder(view);
         return holder;
