@@ -26,7 +26,7 @@ Full Text Search수행하는 방법에 3와 4가 있는데
 매우 빠른 속도로 전체텍스트 검색을 할 수 있다.
 Fts4는 Room 2.1.0 이상에서 제공되는 기능
  */
-//@Fts4
+@Fts4
 @Entity(tableName = "tbl_memo")
 public class MemoVO {
 

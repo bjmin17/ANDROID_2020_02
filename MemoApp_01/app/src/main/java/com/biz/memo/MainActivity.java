@@ -31,7 +31,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    List<MemoVO> memoList = null;
+//    List<MemoVO> memoList = null;
     TextInputEditText m_input_memo = null;
     RecyclerView memo_list_view = null;
     MemoViewAdapter view_adapter = null;
@@ -48,32 +48,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        memoList = new ArrayList<MemoVO>();
+//        memoList = new ArrayList<MemoVO>();
 
         Button btn_save = findViewById(R.id.memo_save);
         btn_save.setOnClickListener(this);
 
         m_input_memo = findViewById(R.id.m_input_text);
-
-
-//        for(int i = 0 ; i < 30 ; i ++) {
-//            MemoVO memoVO = new MemoVO();
-//            memoVO.setM_date(sd.format(date));
-//            memoVO.setM_time(st.format(date));
-//            memoVO.setM_text((i+1) + " 번째 메모");
-//
-//            memoList.add(memoVO);
-//        }
         memo_list_view = findViewById(R.id.memo_list_view);
+
+        // RecyclerView에 데이터를 표시하기 위해서 Adapter를 부착하는 부분
+        view_adapter = new MemoViewAdapter(this);
+        memo_list_view.setAdapter(view_adapter);
 
         // DB 연동을 위한 준비
         // LifeCycle 2.2.0-beta01의 ViewModelProvider 사용
         memoViewModel = new ViewModelProvider(this).get(MemoViewModel.class);
-        view_adapter = new MemoViewAdapter(this);
-        memo_list_view.setAdapter(view_adapter);
 
 
-        memoList = new ArrayList<>();
+
+//        memoList = new ArrayList<>();
 
         /*
         DB의 데이터가 변경되어 이전에 selectAll()로 가져온 리스트에 변동이 발생하면
@@ -81,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         onChanged() method에서 데이터를 화면에 보여주는 코드를 작성한다.
 
          */
+
+        /*
         memoViewModel.selectAll().observe(this, new Observer<List<MemoVO>>() {
             @Override
             public void onChanged(List<MemoVO> memoVOS) {
@@ -88,8 +83,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 view_adapter.setMemoList(memoVOS);
             }
         });
+         */
 
-//        memoList = memoViewModel.selectAll();
+        memoViewModel.selectAll().observe(this,
+                (memoList)->view_adapter.setMemoList(memoList));
+
+        MemoViewAdapter.OnDeleteButtonClickListener
+                deleteBtnEvent = new MemoViewAdapter.OnDeleteButtonClickListener() {
+            @Override
+            public void onDeleteButtonClicked(MemoVO memoVO) {
+                memoViewModel.delete(memoVO);
+            }
+        };
+
+        view_adapter.setDeleteBtnClick(deleteBtnEvent);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
 
@@ -149,8 +156,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Date date = new Date(System.currentTimeMillis());
 
-
-
         MemoVO memoVO = MemoVO.builder()
                         .m_date(sd.format(date))
                         .m_time(st.format(date))
@@ -158,11 +163,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 데이터 DB에 저장
         // memoViewModel의 insert 메서드를 호출하여 DB에 memoVO 데이터를 저장
         memoViewModel.insert(memoVO);
-
-//        memoList.add(memoVO);
-        // RecyclerView의 Adapter한테 데이터가 변경되었으니 리스트를
-        // 다시 그려라 라는 통보
-        view_adapter.notifyDataSetChanged();
 
         m_input_memo.setText("");
     }
