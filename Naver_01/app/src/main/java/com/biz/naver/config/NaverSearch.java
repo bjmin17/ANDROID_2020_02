@@ -1,13 +1,12 @@
 package com.biz.naver.config;
 
 import android.os.AsyncTask;
-import android.view.Display;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.biz.naver.adapter.MovieAdapter;
-import com.biz.naver.domain.NaverMovieVO;
+import com.biz.naver.domain.NaverMovieItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +19,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class NaverSearch extends AsyncTask<Integer,Integer,Void> {
     private final String naver_movie_url = "https://openapi.naver.com/v1/search/movie.json";
     private String strSearch;
 
-    private List<NaverMovieVO> mList = null;
+    private List<NaverMovieItem> mList = null;
     private RecyclerView recyclerView;
 
     public NaverSearch() {
@@ -131,12 +129,13 @@ public class NaverSearch extends AsyncTask<Integer,Integer,Void> {
             for(int i = 0 ; i < resItems.length(); i++) {
                 JSONObject item = resItems.getJSONObject(i);
 
-                NaverMovieVO mVO = NaverMovieVO.builder()
+                NaverMovieItem mVO = NaverMovieItem.builder()
                                     .title(item.getString("title"))
                                     .director(item.getString("director"))
                                     .actor(item.getString("actor"))
                                     .link(item.getString("link"))
                                     .image(item.getString("image"))
+                                    .userRating(item.getString("userRating"))
                                     .build();
 
                 mList.add(mVO);
