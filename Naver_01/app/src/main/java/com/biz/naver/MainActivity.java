@@ -2,7 +2,12 @@ package com.biz.naver;
 
 import android.os.Bundle;
 
+import com.biz.naver.adapter.MovieAdapter;
 import com.biz.naver.config.NaverSearch;
+import com.biz.naver.config.NaverSecur;
+import com.biz.naver.domain.NaverMovie;
+import com.biz.naver.domain.NaverMovieItem;
+import com.biz.naver.retrofit.RetrofitClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -10,6 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,6 +24,12 @@ import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,8 +62,34 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this,"검색어를 입력하세요",Toast.LENGTH_SHORT).show();
                     } else {
                         // Toast.makeText(MainActivity.this,strSearch,Toast.LENGTH_SHORT).show();
-                        NaverSearch naverSearch = new NaverSearch(strSearch,recyclerView);
-                        naverSearch.execute();
+//                        NaverSearch naverSearch = new NaverSearch(strSearch,recyclerView);
+//                        naverSearch.execute();
+
+                        Call<NaverMovie> naverCall = RetrofitClient.getInstance().getMovie(
+                                NaverSecur.NAVER_ID,
+                                NaverSecur.NAVER_SEC,
+                                strSearch
+                        );
+
+                        /**
+                         * 2020.2.26 nqueue Call 설명 필요
+                         * I will be Back ...
+                         */
+                        naverCall.enqueue(new Callback<NaverMovie>() {
+                            @Override
+                            public void onResponse(Call<NaverMovie> call, Response<NaverMovie> response) {
+                                List<NaverMovieItem> mList = response.body().getItems();
+                                MovieAdapter movieAdapter = new MovieAdapter(mList);
+                                recyclerView.setAdapter(movieAdapter);
+                                StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
+
+                                recyclerView.setLayoutManager(layoutManager);                            }
+
+                            @Override
+                            public void onFailure(Call<NaverMovie> call, Throwable t) {
+
+                            }
+                        });
                     }
                 }
 
